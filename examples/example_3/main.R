@@ -49,66 +49,33 @@ source('src/baseSAA.R',encoding='UTF-8')
 ## Lets compare Soft Boston vs. DA assignment - no transfer:
 {
   ## Soft Boston:
-  results_1 = baseSAA(apps=softBoston,vacs=vacancies,get_cutoffs=F,transfer_capacity=F,
+  results_1 = baseSAA(apps=softBoston,vacs=vacancies,get_cutoffs=T,transfer_capacity=F,
                       iters=100)
   
   ## DA:
-  results_2 = baseSAA(apps=baseDA,vacs=vacancies,get_cutoffs=F,transfer_capacity=F,
+  results_2 = baseSAA(apps=baseDA,vacs=vacancies,get_cutoffs=T,transfer_capacity=F,
                       iters=100)
   
   ## Soft Boston:
-  results_3 = baseSAA(apps=softBoston,vacs=vacancies,get_cutoffs=F,transfer_capacity=T,
+  results_3 = baseSAA(apps=softBoston,vacs=vacancies,get_cutoffs=T,transfer_capacity=T,
                       iters=100)
   
   ## DA:
-  results_4 = baseSAA(apps=baseDA,vacs=vacancies,get_cutoffs=F,transfer_capacity=T,
+  results_4 = baseSAA(apps=baseDA,vacs=vacancies,get_cutoffs=T,transfer_capacity=T,
                       iters=100)
 }
 
 ## Export:
 {
+  ## Export results:
   fwrite(results_1$assignment,'data/example_3/results_boston_r_v1.csv')
   fwrite(results_2$assignment,'data/example_3/results_da_r_v1.csv')
   fwrite(results_3$assignment,'data/example_3/results_boston_r_v2.csv')
   fwrite(results_4$assignment,'data/example_3/results_da_r_v2.csv')
-}
-
-{  
-  ## Compare results:
-  results_1 = results_1$assignment
-  results_2 = results_2$assignment
-  results_1 = merge(results_1,applications[,.(applicant_id,grade_id,program_id)],by=c('applicant_id','program_id'))
-  results_2 = merge(results_2,applications[,.(applicant_id,grade_id,program_id)],by=c('applicant_id','program_id'))
   
-  table(results_1[iter<11]$iter,results_1[iter<11]$grade_id)
-  table(results_2[iter<11]$iter,results_2[iter<11]$grade_id)
-  
-  results_1 = results_1[,.(Boston=.N),by=.(iter,program_id)]
-  results_2 = results_2[,.(DA=.N),by=.(iter,program_id)]
-  results = NULL
-  for(i in 1:100){
-    a = merge(vacancies,results_1[iter == i,],by='program_id',all.x=T)
-    a[,iter := i,]
-    results = rbind(results,a)
-    rm(a)
-  }
-  results = merge(results,results_2,by=c('iter','program_id'),all.x=T)
-  results = merge(results,manuel,by.x=c('iter','school_id','grade_id'),by.y=c('iter','program_id','grade_id'),all.x=T)
-  results[is.na(results)] = 0
-  
-  ## Check results:
-  results[,.(Boston=sum(Boston),DA=sum(DA)),by=.(iter)]
-  
-  ## Plot:
-  ggplot(results[program_id == 321]) +
-    geom_density(aes(x=DA,color='DA')) +
-    geom_density(aes(x=manuel,color='Manuel'))
-  
-  ## Soft Boston:
-  results_3 = baseSAA(apps=softBoston,vacs=vacancies,get_cutoffs=F,transfer_capacity=F,
-                      get_probs=T,get_assignment=F,iters=100)
-  
-  ## DA:
-  results_4 = baseSAA(apps=baseDA,vacs=vacancies,get_cutoffs=F,transfer_capacity=F,
-                      get_probs=T,get_assignment=F,iters=100)
+  ## Export cutoffs:
+  fwrite(results_1$cutoffs,'data/example_3/cutoffs_boston_r_v1.csv')
+  fwrite(results_2$cutoffs,'data/example_3/cutoffs_da_r_v1.csv')
+  fwrite(results_3$cutoffs,'data/example_3/cutoffs_boston_r_v2.csv')
+  fwrite(results_4$cutoffs,'data/example_3/cutoffs_da_r_v2.csv')
 }

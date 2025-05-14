@@ -53,7 +53,7 @@ def baseSAA(apps, vacs, iters=1, get_wl=True, get_assignment=True, get_cutoffs=T
 
         # Save cutoffs
         if get_cutoffs:
-            cutoffs = pd.concat([cutoffs, get_cutoffs(apps2, vacs, assigned, None, i + 1, not transfer_capacity)])
+            cutoffs = pd.concat([cutoffs, getCutoffs(apps2, vacs, assigned, None, i + 1, not transfer_capacity)])
         
         # Save assignment
         if get_assignment:
