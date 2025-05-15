@@ -17,14 +17,16 @@ def expandVacs(vacs):
     
     # Sort the quota columns numerically based on the number following 'quota_'
     quota_columns_sorted = sorted(quota_columns, key=lambda x: int(x.split('_')[1]))
-    
+
     # Using wide_to_long
+
     vacs_long = pd.wide_to_long(vacs, stubnames=['quota_', 'regular_'], 
                                 i='program_id', j='quota_id', suffix='\\w+').reset_index()
     vacs_long.rename(columns={'quota__vacancies': 'vacancies'}, inplace=True)
 
     vacs_long['vacancies'] = np.where(~pd.isna(vacs_long['quota_']), vacs_long['quota_'], vacs_long['regular_'])
-    max_quota_id = pd.to_numeric(vacs_long['quota_id'], errors='coerce').max()
+    quota_ids = pd.to_numeric(vacs_long['quota_id'], errors='coerce')
+    max_quota_id = 0 if quota_ids.isna().all() else quota_ids.max()
     new_quota_id = max_quota_id + 1
     pd.set_option('future.no_silent_downcasting', True)
     vacs_long['quota_id'] = vacs_long['quota_id'].replace('vacancies', new_quota_id)

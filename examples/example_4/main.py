@@ -11,27 +11,24 @@ sys.path.append(current_dir)
 from baseSAA import baseSAA
 
 # Load data
-vacancies = pd.read_csv('data/example_3/vacancies_r.csv')
-applications = pd.read_csv('data/example_3/applications_r.csv')
+vacancies = pd.read_csv('data/example_4/vacancies_junji_2025.csv')
+applications = pd.read_csv('data/example_4/applications_junji_2025.csv')
 
 # Prep data for different mechanisms
-soft_boston = applications[['applicant_id', 'grade_id', 'program_id', 'ranking', 'quota_id', 'priority_profile_ori']].rename(columns={'priority_profile_ori': 'priority_profile'})
-base_da = applications[['applicant_id', 'grade_id', 'program_id', 'ranking', 'quota_id', 'priority_profile_edi']].rename(columns={'priority_profile_edi': 'priority_profile'})
+base_da = applications[['applicant_id', 'grade_id', 'program_id', 'ranking', 'quota_id', 'priority_profile','lottery_number']]
+vacancies = vacancies[['program_id', 'regular_vacancies']]
 
 # Execute the assignment algorithms
-results_1 = baseSAA(apps=soft_boston, vacs=vacancies, get_cutoffs=True, transfer_capacity=False, iters=100)
-results_2 = baseSAA(apps=base_da, vacs=vacancies, get_cutoffs=True, transfer_capacity=False, iters=100)
-results_3 = baseSAA(apps=soft_boston, vacs=vacancies, get_cutoffs=True, transfer_capacity=True, iters=100)
-results_4 = baseSAA(apps=base_da, vacs=vacancies, get_cutoffs=True,transfer_capacity=True, iters=100)
+results_1 = baseSAA(apps=base_da, vacs=vacancies, get_cutoffs=True,transfer_capacity=False,iters=1)
+results_2 = baseSAA(apps=base_da, vacs=vacancies, get_cutoffs=True,transfer_capacity=False,iters=50,
+                    get_assignment=False,get_probs=True)
 
 # Export assignment:
-results_1['assignment'].to_csv('data/example_3/results_boston_py_v1.csv',index=False)
-results_2['assignment'].to_csv('data/example_3/results_da_py_v1.csv', index=False)
-results_3['assignment'].to_csv('data/example_3/results_boston_py_v2.csv',index=False)
-results_4['assignment'].to_csv('data/example_3/results_da_py_v2.csv', index=False)
+results_1['assignment'].to_csv('data/example_4/results_official_py.csv',index=False)
 
 # Export cutoffs:
-results_1['cutoffs'].to_csv('data/example_3/cutoffs_boston_py_v1.csv',index=False)
-results_2['cutoffs'].to_csv('data/example_3/cutoffs_da_py_v1.csv', index=False)
-results_3['cutoffs'].to_csv('data/example_3/cutoffs_boston_py_v2.csv',index=False)
-results_4['cutoffs'].to_csv('data/example_3/cutoffs_da_py_v2.csv', index=False)
+results_1['cutoffs'].to_csv('data/example_4/cutoffs_official_py.csv',index=False)
+results_2['cutoffs'].to_csv('data/example_4/cutoffs_simulations_py.csv', index=False)
+
+# Export ratex:
+results_2['ratex'].to_csv('data/example_4/ratex_simulations_py.csv', index=False)

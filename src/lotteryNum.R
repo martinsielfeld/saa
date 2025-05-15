@@ -30,7 +30,9 @@ lotteryNum = function(apps=NULL,type='py&r',breaktype='application',iterat=1,see
       
     }
   
-    apps[,lottery_number := lottery_number/10^max(str_length(lottery_number))]
+    if(any(apps$lottery_number) >= 1){
+      apps[,lottery_number := lottery_number/10^max(str_length(lottery_number))]
+    }
   
     if(breaktype == 'applicant'){ ## If one lottery number per applicant, first one
     
